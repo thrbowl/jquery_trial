@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Ajax</title>
+    <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript">
+        $(document)
+                .ajaxStart(function () {
+                    alert("$.ajaxStart");
+                })
+                .ajaxComplete(function () {
+                    alert("$.ajaxComplete");
+                })
+                .ajaxStop(function () {
+                    alert("$.ajaxStop");
+                });
+
+        $(function () {
+            $.ajaxSetup({
+                url:"/ajax/complete/"
+            });
+            $.ajax({
+                url:"/ajax/v1/",
+                async:false,
+                //global: false,
+                error:function (data) {
+                    alert("$.ajax.error");
+                },
+                success:function (data) {
+                    alert("$.ajax.success");
+                },
+                complete:function () {
+                    alert("$.ajax.complete");
+                }
+            });
+            $.get("/ajax/v2/", function () {
+                alert("$.get.2")
+            });
+            $.get("/ajax/v3/", function () {
+                alert("$.get.3")
+            });
+        });
+    </script>
+</head>
+<body>
+3. $(function(){}) == JQuery(function(){}) == $(document).ready(function(){}).<br>
+1. Global ajax event will run after the corresponding local event.<br>
+2. The global arg could cancel the register action.<br>
+4. ajaxStart will be call when the ajax request start and no other ajax requests are running.<br>
+5. ajaxStop will be call when there are no more ajax requests being processed.<br>
+6. $.ajaxSetup could set a default param.<br>
+7. $.ajax can't stop to use the var write in $.ajaxSetup, it's only valid with ajax event.<br>
+</body>
+</html>

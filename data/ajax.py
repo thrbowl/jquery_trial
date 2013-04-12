@@ -1,12 +1,19 @@
+import time
 from bottle import route, Bottle, jinja2_template
 
 app = Bottle()
 
-@app.route('/complete/')
+@app.route('/v1/')
 def ajax():
-    return 'Ready? complete!!!'
+    return ''
 
 
-@app.route('/overwrite/')
+@app.route('/v2/')
 def ajax():
-    return 'Ready? overwrite!!!'
+    return ''
+
+
+@app.route('/v3/')
+def ajax():
+    time.sleep(2)
+    return ''
