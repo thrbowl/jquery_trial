@@ -4,16 +4,16 @@ from bottle import route, Bottle, jinja2_template
 app = Bottle()
 
 @app.route('/v1/')
-def ajax():
+def v1():
     return ''
 
 
 @app.route('/v2/')
-def ajax():
+def v2():
     return ''
 
 
 @app.route('/v3/')
-def ajax():
+def v3():
     time.sleep(2)
     return ''
