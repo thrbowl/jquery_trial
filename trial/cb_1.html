@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Attributes</title>
+    <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        // a sample logging function to be added to a callbacks list
+        var foo = function( value ) {
+            console.log( "foo: " + value );
+        };
+        // another function to also be added to the list
+        var bar = function( value ){
+            console.log( "bar: " + value );
+        };
+        var callbacks = $.Callbacks();
+        // add the function "foo" to the list
+        callbacks.add( foo );
+        // fire the items on the list
+        callbacks.fire( "hello" );
+        // outputs: "foo: hello"
+        // add the function "bar" to the list
+        callbacks.add( bar );
+        // fire the items on the list again
+        callbacks.fire( "world" );
+        // outputs:
+        // "foo: world"
+        // "bar: world"
+        
+    });
+    </script>
+</head>
+<body>
+<hr>
+1.it seems like the array contains functions, then iter and run each elm(function)<br>
+2.the different between .lock() and .disable is after .lock(), still can .add(), .disable() can not<br>
+</body>
+</html>
