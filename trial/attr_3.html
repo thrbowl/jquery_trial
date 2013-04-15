@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Attributes</title>
+    <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        alert($("div.demo-container").html());
+        $("div").html(function(index, oldhtml) {
+            alert(oldhtml);
+            return "test";
+        });
+    });
+    </script>
+</head>
+<body>
+<div id="some_id" class="some_class">&nbsp;</div> 
+<div class="demo-container">
+    <div class="demo-box">Demonstration Box</div>
+</div>
+<hr>
+1..html() replace the value of the tags<br>
+2..attr() is used to operate to html attributes and .prop() is abount dom properties,
+and the .val() is get value from form elms.<br>
+</body>
+</html>
