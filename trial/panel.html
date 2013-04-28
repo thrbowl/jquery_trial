@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>panel trial</title>
+    <link rel="stylesheet" type="text/css" href="/static/easyui-themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="/static/easyui-themes/bootstrap/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/easyui-themes/bootstrap/panel.css">
+    <link rel="stylesheet" type="text/css" href="/static/easyui-themes/bootstrap/layout.css">
+    <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="/static/easyui-themes/jquery.resizable.js"></script>
+    <script type="text/javascript" src="/static/easyui-themes/jquery.panel.js"></script>
+    <script type="text/javascript" src="/static/easyui-themes/jquery.layout.js"></script>
+    <script type="text/javascript" src="/static/easyui-themes/jquery.parser.js"></script>
+</head>
+<body class="easyui-layout">
+<div data-options="region:'north',title:'North Title',split:true" style="height:100px;"></div>
+<div data-options="region:'south',title:'South Title',split:true" style="height:100px;"></div>
+<div data-options="region:'east',iconCls:'icon-reload',title:'East',split:true" style="width:100px;"></div>
+<div data-options="region:'west',title:'West',split:true" style="width:100px;"></div>
+<div data-options="region:'center',title:'center title'" style="padding:5px;background:#eee;">
+    <div class="easyui-panel" data-options="title:'panel 1',fit:true">S</div>
+    <div class="easyui-panel" data-options="title:'panel 2',fit:true">M</div>
+</div>
+</body>
+</html>
