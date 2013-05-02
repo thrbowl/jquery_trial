@@ -87,10 +87,10 @@
             $("html").addClass("panel-fit");
         }
         cc.addClass("layout");
-        function _e(cc) {
+        function createRegions(cc) {
             cc.children("div").each(function () {
-                var options = $.parser.parseOptions(this, ["region"]);
-                var region = options.region;
+                var opts = $.parser.parseOptions(this, ["region"]);
+                var region = opts.region;
                 if (region == "north" || region == "south" || region == "east" || region == "west" || region == "center") {
                     createPanel(container, {region:region}, this);
                 }
@@ -98,12 +98,12 @@
         }
 
         ;
-        cc.children("form").length ? _e(cc.children("form")) : _e(cc);
+        cc.children("form").length ? createRegions(cc.children("form")) : createRegions(cc);
         $("<div class=\"layout-split-proxy-h\"></div>").appendTo(cc);
         $("<div class=\"layout-split-proxy-v\"></div>").appendTo(cc);
-        cc.bind("_resize", function (e, _10) {
-            var _11 = $.data(container, "layout").options;
-            if (_11.fit == true || _10) {
+        cc.bind("_resize", function (elem, fit) {
+            var opts = $.data(container, "layout").options;
+            if (opts.fit == true || fit) {
                 setSize(container);
             }
             return false;
@@ -111,141 +111,151 @@
     }
 
     ;
-    function createPanel(_13, _14, el) {
-        _14.region = _14.region || "center";
-        var _15 = $.data(_13, "layout").panels;
-        var cc = $(_13);
-        var dir = _14.region;
-        if (_15[dir].length) {
+    function createPanel(container, options, elem) {
+        options.region = options.region || "center";
+        var panels = $.data(container, "layout").panels;
+        var cc = $(container);
+        var dir = options.region;
+        if (panels[dir].length) {
             return;
         }
-        var pp = $(el);
+        var pp = $(elem);
         if (!pp.length) {
             pp = $("<div></div>").appendTo(cc);
         }
-        pp.panel($.extend({}, {width:(pp.length ? parseInt(pp[0].style.width) || pp.outerWidth() : "auto"), height:(pp.length ? parseInt(pp[0].style.height) || pp.outerHeight() : "auto"), split:(pp.attr("split") ? pp.attr("split") == "true" : undefined), doSize:false, cls:("layout-panel layout-panel-" + dir), bodyCls:"layout-body", onOpen:function () {
-            var _16 = {north:"up", south:"down", east:"right", west:"left"};
-            if (!_16[dir]) {
-                return;
-            }
-            var _17 = "layout-button-" + _16[dir];
-            var _18 = $(this).panel("header").children("div.panel-tool");
-            if (!_18.children("a." + _17).length) {
-                var t = $("<a href=\"javascript:void(0)\"></a>").addClass(_17).appendTo(_18);
-                t.bind("click", {dir:dir}, function (e) {
-                    _26(_13, e.data.dir);
-                    return false;
-                });
-            }
-        }}, _14));
-        _15[dir] = pp;
+        pp.panel($.extend({}, {
+            width:(pp.length ? parseInt(pp[0].style.width) || pp.outerWidth() : "auto"),
+            height:(pp.length ? parseInt(pp[0].style.height) || pp.outerHeight() : "auto"),
+            split:(pp.attr("split") ? pp.attr("split") == "true" : undefined),
+            doSize:false, cls:("layout-panel layout-panel-" + dir),
+            bodyCls:"layout-body",
+            onOpen:function () {
+                var iconTable = {north:"up", south:"down", east:"right", west:"left"};
+                if (!iconTable[dir]) {
+                    return;
+                }
+                var iconCls = "layout-button-" + iconTable[dir];
+                var tool = $(this).panel("header").children("div.panel-tool");
+                if (!tool.children("a." + iconCls).length) {
+                    var t = $("<a href=\"javascript:void(0)\"></a>").addClass(iconCls).appendTo(tool);
+                    t.bind("click", {dir:dir}, function (elem) {
+                        createExpandPanel(container, elem.data.dir);
+                        return false;
+                    });
+                }
+            }}, options));
+        panels[dir] = pp;
         if (pp.panel("options").split) {
-            var _19 = pp.panel("panel");
-            _19.addClass("layout-split-" + dir);
-            var _1a = "";
+            var panel = pp.panel("panel");
+            panel.addClass("layout-split-" + dir);
+            var handles = "";
             if (dir == "north") {
-                _1a = "s";
+                handles = "s";
             }
             if (dir == "south") {
-                _1a = "n";
+                handles = "n";
             }
             if (dir == "east") {
-                _1a = "w";
+                handles = "w";
             }
             if (dir == "west") {
-                _1a = "e";
+                handles = "e";
             }
-            _19.resizable({handles:_1a, onStartResize:function (e) {
-                resizing = true;
-                if (dir == "north" || dir == "south") {
-                    var _1b = $(">div.layout-split-proxy-v", _13);
-                } else {
-                    var _1b = $(">div.layout-split-proxy-h", _13);
-                }
-                var top = 0, _1c = 0, _1d = 0, _1e = 0;
-                var pos = {display:"block"};
-                if (dir == "north") {
-                    pos.top = parseInt(_19.css("top")) + _19.outerHeight() - _1b.height();
-                    pos.left = parseInt(_19.css("left"));
-                    pos.width = _19.outerWidth();
-                    pos.height = _1b.height();
-                } else {
-                    if (dir == "south") {
-                        pos.top = parseInt(_19.css("top"));
-                        pos.left = parseInt(_19.css("left"));
-                        pos.width = _19.outerWidth();
-                        pos.height = _1b.height();
+            panel.resizable({
+                handles:handles,
+                onStartResize:function (e) {
+                    resizing = true;
+                    if (dir == "north" || dir == "south") {
+                        var proxy = $(">div.layout-split-proxy-v", container);
                     } else {
-                        if (dir == "east") {
-                            pos.top = parseInt(_19.css("top")) || 0;
-                            pos.left = parseInt(_19.css("left")) || 0;
-                            pos.width = _1b.width();
-                            pos.height = _19.outerHeight();
+                        var proxy = $(">div.layout-split-proxy-h", container);
+                    }
+                    var top = 0, left = 0, width = 0, height = 0;
+                    var pos = {display:"block"};
+                    if (dir == "north") {
+                        pos.top = parseInt(panel.css("top")) + panel.outerHeight() - proxy.height();
+                        pos.left = parseInt(panel.css("left"));
+                        pos.width = panel.outerWidth();
+                        pos.height = proxy.height();
+                    } else {
+                        if (dir == "south") {
+                            pos.top = parseInt(panel.css("top"));
+                            pos.left = parseInt(panel.css("left"));
+                            pos.width = panel.outerWidth();
+                            pos.height = proxy.height();
                         } else {
-                            if (dir == "west") {
-                                pos.top = parseInt(_19.css("top")) || 0;
-                                pos.left = _19.outerWidth() - _1b.width();
-                                pos.width = _1b.width();
-                                pos.height = _19.outerHeight();
+                            if (dir == "east") {
+                                pos.top = parseInt(panel.css("top")) || 0;
+                                pos.left = parseInt(panel.css("left")) || 0;
+                                pos.width = proxy.width();
+                                pos.height = panel.outerHeight();
+                            } else {
+                                if (dir == "west") {
+                                    pos.top = parseInt(panel.css("top")) || 0;
+                                    pos.left = panel.outerWidth() - proxy.width();
+                                    pos.width = proxy.width();
+                                    pos.height = panel.outerHeight();
+                                }
                             }
                         }
                     }
-                }
-                _1b.css(pos);
-                $("<div class=\"layout-mask\"></div>").css({left:0, top:0, width:cc.width(), height:cc.height()}).appendTo(cc);
-            }, onResize:function (e) {
-                if (dir == "north" || dir == "south") {
-                    var _1f = $(">div.layout-split-proxy-v", _13);
-                    _1f.css("top", e.pageY - $(_13).offset().top - _1f.height() / 2);
-                } else {
-                    var _1f = $(">div.layout-split-proxy-h", _13);
-                    _1f.css("left", e.pageX - $(_13).offset().left - _1f.width() / 2);
-                }
-                return false;
-            }, onStopResize:function () {
-                $(">div.layout-split-proxy-v", _13).css("display", "none");
-                $(">div.layout-split-proxy-h", _13).css("display", "none");
-                var _20 = pp.panel("options");
-                _20.width = _19.outerWidth();
-                _20.height = _19.outerHeight();
-                _20.left = _19.css("left");
-                _20.top = _19.css("top");
-                pp.panel("resize");
-                setSize(_13);
-                resizing = false;
-                cc.find(">div.layout-mask").remove();
-            }});
+                    proxy.css(pos);
+                    $("<div class=\"layout-mask\"></div>").css({left:0, top:0, width:cc.width(), height:cc.height()}).appendTo(cc);
+                },
+                onResize:function (e) {
+                    if (dir == "north" || dir == "south") {
+                        var proxy = $(">div.layout-split-proxy-v", container);
+                        proxy.css("top", e.pageY - $(container).offset().top - proxy.height() / 2);
+                    } else {
+                        var proxy = $(">div.layout-split-proxy-h", container);
+                        proxy.css("left", e.pageX - $(container).offset().left - proxy.width() / 2);
+                    }
+                    return false;
+                },
+                onStopResize:function () {
+                    $(">div.layout-split-proxy-v", container).css("display", "none");
+                    $(">div.layout-split-proxy-h", container).css("display", "none");
+                    var opts = pp.panel("options");
+                    opts.width = panel.outerWidth();
+                    opts.height = panel.outerHeight();
+                    opts.left = panel.css("left");
+                    opts.top = panel.css("top");
+                    pp.panel("resize");
+                    setSize(container);
+                    resizing = false;
+                    cc.find(">div.layout-mask").remove();
+                }});
         }
     }
 
     ;
-    function _21(_22, _23) {
-        var _24 = $.data(_22, "layout").panels;
-        if (_24[_23].length) {
-            _24[_23].panel("destroy");
-            _24[_23] = $();
-            var _25 = "expand" + _23.substring(0, 1).toUpperCase() + _23.substring(1);
-            if (_24[_25]) {
-                _24[_25].panel("destroy");
-                _24[_25] = undefined;
+    function removeRegion(container, region) {
+        var panels = $.data(container, "layout").panels;
+        if (panels[region].length) {
+            panels[region].panel("destroy");
+            panels[region] = $();
+            var expandPanel = "expand" + region.substring(0, 1).toUpperCase() + region.substring(1);
+            if (panels[expandPanel]) {
+                panels[expandPanel].panel("destroy");
+                panels[expandPanel] = undefined;
             }
         }
     }
 
     ;
-    function _26(_27, _28, _29) {
-        if (_29 == undefined) {
-            _29 = "normal";
+    function createExpandPanel(container, region, duration) {
+        if (duration == undefined) {
+            duration = "normal";
         }
-        var _2a = $.data(_27, "layout").panels;
-        var p = _2a[_28];
+        var panels = $.data(container, "layout").panels;
+        var p = panels[region];
         if (p.panel("options").onBeforeCollapse.call(p) == false) {
             return;
         }
-        var _2b = "expand" + _28.substring(0, 1).toUpperCase() + _28.substring(1);
-        if (!_2a[_2b]) {
-            _2a[_2b] = _2c(_28);
-            _2a[_2b].panel("panel").click(function () {
+        var expandPanel = "expand" + region.substring(0, 1).toUpperCase() + region.substring(1);
+        if (!panels[expandPanel]) {
+            panels[expandPanel] = _expandPanel(region);
+            panels[expandPanel].panel("panel").click(function () {
                 var _2d = _2e();
                 p.panel("expand", false).panel("open").panel("resize", _2d.collapse);
                 p.panel("panel").animate(_2d.expand);
@@ -253,33 +263,33 @@
             });
         }
         var _2f = _2e();
-        if (!isVisible(_2a[_2b])) {
-            _2a.center.panel("resize", _2f.resizeC);
+        if (!isVisible(panels[expandPanel])) {
+            panels.center.panel("resize", _2f.resizeC);
         }
-        p.panel("panel").animate(_2f.collapse, _29, function () {
+        p.panel("panel").animate(_2f.collapse, duration, function () {
             p.panel("collapse", false).panel("close");
-            _2a[_2b].panel("open").panel("resize", _2f.expandP);
+            panels[expandPanel].panel("open").panel("resize", _2f.expandP);
         });
-        function _2c(dir) {
-            var _30;
+        function _expandPanel(dir) {
+            var icon;
             if (dir == "east") {
-                _30 = "layout-button-left";
+                icon = "layout-button-left";
             } else {
                 if (dir == "west") {
-                    _30 = "layout-button-right";
+                    icon = "layout-button-right";
                 } else {
                     if (dir == "north") {
-                        _30 = "layout-button-down";
+                        icon = "layout-button-down";
                     } else {
                         if (dir == "south") {
-                            _30 = "layout-button-up";
+                            icon = "layout-button-up";
                         }
                     }
                 }
             }
-            var p = $("<div></div>").appendTo(_27).panel({cls:"layout-expand", title:"&nbsp;", closed:true, doSize:false, tools:[
-                {iconCls:_30, handler:function () {
-                    _31(_27, _28);
+            var p = $("<div></div>").appendTo(container).panel({cls:"layout-expand", title:"&nbsp;", closed:true, doSize:false, tools:[
+                {iconCls:icon, handler:function () {
+                    expandRegion(container, region);
                     return false;
                 }}
             ]});
@@ -293,50 +303,50 @@
 
         ;
         function _2e() {
-            var cc = $(_27);
-            if (_28 == "east") {
-                return {resizeC:{width:_2a.center.panel("options").width + _2a["east"].panel("options").width - 28}, expand:{left:cc.width() - _2a["east"].panel("options").width}, expandP:{top:_2a["east"].panel("options").top, left:cc.width() - 28, width:28, height:_2a["center"].panel("options").height}, collapse:{left:cc.width()}};
+            var cc = $(container);
+            if (region == "east") {
+                return {resizeC:{width:panels.center.panel("options").width + panels["east"].panel("options").width - 28}, expand:{left:cc.width() - panels["east"].panel("options").width}, expandP:{top:panels["east"].panel("options").top, left:cc.width() - 28, width:28, height:panels["center"].panel("options").height}, collapse:{left:cc.width()}};
             } else {
-                if (_28 == "west") {
-                    return {resizeC:{width:_2a.center.panel("options").width + _2a["west"].panel("options").width - 28, left:28}, expand:{left:0}, expandP:{left:0, top:_2a["west"].panel("options").top, width:28, height:_2a["center"].panel("options").height}, collapse:{left:-_2a["west"].panel("options").width}};
+                if (region == "west") {
+                    return {resizeC:{width:panels.center.panel("options").width + panels["west"].panel("options").width - 28, left:28}, expand:{left:0}, expandP:{left:0, top:panels["west"].panel("options").top, width:28, height:panels["center"].panel("options").height}, collapse:{left:-panels["west"].panel("options").width}};
                 } else {
-                    if (_28 == "north") {
+                    if (region == "north") {
                         var hh = cc.height() - 28;
-                        if (isVisible(_2a.expandSouth)) {
-                            hh -= _2a.expandSouth.panel("options").height;
+                        if (isVisible(panels.expandSouth)) {
+                            hh -= panels.expandSouth.panel("options").height;
                         } else {
-                            if (isVisible(_2a.south)) {
-                                hh -= _2a.south.panel("options").height;
+                            if (isVisible(panels.south)) {
+                                hh -= panels.south.panel("options").height;
                             }
                         }
-                        _2a.east.panel("resize", {top:28, height:hh});
-                        _2a.west.panel("resize", {top:28, height:hh});
-                        if (isVisible(_2a.expandEast)) {
-                            _2a.expandEast.panel("resize", {top:28, height:hh});
+                        panels.east.panel("resize", {top:28, height:hh});
+                        panels.west.panel("resize", {top:28, height:hh});
+                        if (isVisible(panels.expandEast)) {
+                            panels.expandEast.panel("resize", {top:28, height:hh});
                         }
-                        if (isVisible(_2a.expandWest)) {
-                            _2a.expandWest.panel("resize", {top:28, height:hh});
+                        if (isVisible(panels.expandWest)) {
+                            panels.expandWest.panel("resize", {top:28, height:hh});
                         }
-                        return {resizeC:{top:28, height:hh}, expand:{top:0}, expandP:{top:0, left:0, width:cc.width(), height:28}, collapse:{top:-_2a["north"].panel("options").height}};
+                        return {resizeC:{top:28, height:hh}, expand:{top:0}, expandP:{top:0, left:0, width:cc.width(), height:28}, collapse:{top:-panels["north"].panel("options").height}};
                     } else {
-                        if (_28 == "south") {
+                        if (region == "south") {
                             var hh = cc.height() - 28;
-                            if (isVisible(_2a.expandNorth)) {
-                                hh -= _2a.expandNorth.panel("options").height;
+                            if (isVisible(panels.expandNorth)) {
+                                hh -= panels.expandNorth.panel("options").height;
                             } else {
-                                if (isVisible(_2a.north)) {
-                                    hh -= _2a.north.panel("options").height;
+                                if (isVisible(panels.north)) {
+                                    hh -= panels.north.panel("options").height;
                                 }
                             }
-                            _2a.east.panel("resize", {height:hh});
-                            _2a.west.panel("resize", {height:hh});
-                            if (isVisible(_2a.expandEast)) {
-                                _2a.expandEast.panel("resize", {height:hh});
+                            panels.east.panel("resize", {height:hh});
+                            panels.west.panel("resize", {height:hh});
+                            if (isVisible(panels.expandEast)) {
+                                panels.expandEast.panel("resize", {height:hh});
                             }
-                            if (isVisible(_2a.expandWest)) {
-                                _2a.expandWest.panel("resize", {height:hh});
+                            if (isVisible(panels.expandWest)) {
+                                panels.expandWest.panel("resize", {height:hh});
                             }
-                            return {resizeC:{height:hh}, expand:{top:cc.height() - _2a["south"].panel("options").height}, expandP:{top:cc.height() - 28, left:0, width:cc.width(), height:28}, collapse:{top:cc.height()}};
+                            return {resizeC:{height:hh}, expand:{top:cc.height() - panels["south"].panel("options").height}, expandP:{top:cc.height() - 28, left:0, width:cc.width(), height:28}, collapse:{top:cc.height()}};
                         }
                     }
                 }
@@ -347,33 +357,33 @@
     }
 
     ;
-    function _31(_32, _33) {
-        var _34 = $.data(_32, "layout").panels;
+    function expandRegion(container, region) {
+        var panels = $.data(container, "layout").panels;
         var _35 = _36();
-        var p = _34[_33];
+        var p = panels[region];
         if (p.panel("options").onBeforeExpand.call(p) == false) {
             return;
         }
-        var _37 = "expand" + _33.substring(0, 1).toUpperCase() + _33.substring(1);
-        _34[_37].panel("close");
+        var expandPanel = "expand" + region.substring(0, 1).toUpperCase() + region.substring(1);
+        panels[expandPanel].panel("close");
         p.panel("panel").stop(true, true);
         p.panel("expand", false).panel("open").panel("resize", _35.collapse);
         p.panel("panel").animate(_35.expand, function () {
-            setSize(_32);
+            setSize(container);
         });
         function _36() {
-            var cc = $(_32);
-            if (_33 == "east" && _34.expandEast) {
-                return {collapse:{left:cc.width()}, expand:{left:cc.width() - _34["east"].panel("options").width}};
+            var cc = $(container);
+            if (region == "east" && panels.expandEast) {
+                return {collapse:{left:cc.width()}, expand:{left:cc.width() - panels["east"].panel("options").width}};
             } else {
-                if (_33 == "west" && _34.expandWest) {
-                    return {collapse:{left:-_34["west"].panel("options").width}, expand:{left:0}};
+                if (region == "west" && panels.expandWest) {
+                    return {collapse:{left:-panels["west"].panel("options").width}, expand:{left:0}};
                 } else {
-                    if (_33 == "north" && _34.expandNorth) {
-                        return {collapse:{top:-_34["north"].panel("options").height}, expand:{top:0}};
+                    if (region == "north" && panels.expandNorth) {
+                        return {collapse:{top:-panels["north"].panel("options").height}, expand:{top:0}};
                     } else {
-                        if (_33 == "south" && _34.expandSouth) {
-                            return {collapse:{top:cc.height()}, expand:{top:cc.height() - _34["south"].panel("options").height}};
+                        if (region == "south" && panels.expandSouth) {
+                            return {collapse:{top:cc.height()}, expand:{top:cc.height() - panels["south"].panel("options").height}};
                         }
                     }
                 }
@@ -384,37 +394,37 @@
     }
 
     ;
-    function _38(_39) {
-        var _3a = $.data(_39, "layout").panels;
-        var cc = $(_39);
-        if (_3a.east.length) {
-            _3a.east.panel("panel").bind("mouseover", "east", _3b);
+    function bindEvents(container) {
+        var panels = $.data(container, "layout").panels;
+        var cc = $(container);
+        if (panels.east.length) {
+            panels.east.panel("panel").bind("mouseover", "east", collapsePanel);
         }
-        if (_3a.west.length) {
-            _3a.west.panel("panel").bind("mouseover", "west", _3b);
+        if (panels.west.length) {
+            panels.west.panel("panel").bind("mouseover", "west", collapsePanel);
         }
-        if (_3a.north.length) {
-            _3a.north.panel("panel").bind("mouseover", "north", _3b);
+        if (panels.north.length) {
+            panels.north.panel("panel").bind("mouseover", "north", collapsePanel);
         }
-        if (_3a.south.length) {
-            _3a.south.panel("panel").bind("mouseover", "south", _3b);
+        if (panels.south.length) {
+            panels.south.panel("panel").bind("mouseover", "south", collapsePanel);
         }
-        _3a.center.panel("panel").bind("mouseover", "center", _3b);
-        function _3b(e) {
+        panels.center.panel("panel").bind("mouseover", "center", collapsePanel);
+        function collapsePanel(e) {
             if (resizing == true) {
                 return;
             }
-            if (e.data != "east" && isVisible(_3a.east) && isVisible(_3a.expandEast)) {
-                _26(_39, "east");
+            if (e.data != "east" && isVisible(panels.east) && isVisible(panels.expandEast)) {
+                createExpandPanel(container, "east");
             }
-            if (e.data != "west" && isVisible(_3a.west) && isVisible(_3a.expandWest)) {
-                _26(_39, "west");
+            if (e.data != "west" && isVisible(panels.west) && isVisible(panels.expandWest)) {
+                createExpandPanel(container, "west");
             }
-            if (e.data != "north" && isVisible(_3a.north) && isVisible(_3a.expandNorth)) {
-                _26(_39, "north");
+            if (e.data != "north" && isVisible(panels.north) && isVisible(panels.expandNorth)) {
+                createExpandPanel(container, "north");
             }
-            if (e.data != "south" && isVisible(_3a.south) && isVisible(_3a.expandSouth)) {
-                _26(_39, "south");
+            if (e.data != "south" && isVisible(panels.south) && isVisible(panels.expandSouth)) {
+                createExpandPanel(container, "south");
             }
             return false;
         }
@@ -435,72 +445,72 @@
     }
 
     ;
-    function _3c(_3d) {
-        var _3e = $.data(_3d, "layout").panels;
-        if (_3e.east.length && _3e.east.panel("options").collapsed) {
-            _26(_3d, "east", 0);
+    function setExpandPanel(container) {
+        var panels = $.data(container, "layout").panels;
+        if (panels.east.length && panels.east.panel("options").collapsed) {
+            createExpandPanel(container, "east", 0);
         }
-        if (_3e.west.length && _3e.west.panel("options").collapsed) {
-            _26(_3d, "west", 0);
+        if (panels.west.length && panels.west.panel("options").collapsed) {
+            createExpandPanel(container, "west", 0);
         }
-        if (_3e.north.length && _3e.north.panel("options").collapsed) {
-            _26(_3d, "north", 0);
+        if (panels.north.length && panels.north.panel("options").collapsed) {
+            createExpandPanel(container, "north", 0);
         }
-        if (_3e.south.length && _3e.south.panel("options").collapsed) {
-            _26(_3d, "south", 0);
+        if (panels.south.length && panels.south.panel("options").collapsed) {
+            createExpandPanel(container, "south", 0);
         }
     }
 
     ;
-    $.fn.layout = function (_3f, _40) {
-        if (typeof _3f == "string") {
-            return $.fn.layout.methods[_3f](this, _40);
+    $.fn.layout = function (options, param) {
+        if (typeof options == "string") {
+            return $.fn.layout.methods[options](this, param);
         }
-        _3f = _3f || {};
+        options = options || {};
         return this.each(function () {
-            var _41 = $.data(this, "layout");
-            if (_41) {
-                $.extend(_41.options, _3f);
+            var state = $.data(this, "layout");
+            if (state) {
+                $.extend(state.options, options);
             } else {
-                var _42 = $.extend({}, $.fn.layout.defaults, $.fn.layout.parseOptions(this), _3f);
-                $.data(this, "layout", {options:_42, panels:{center:$(), north:$(), south:$(), east:$(), west:$()}});
+                var opts = $.extend({}, $.fn.layout.defaults, $.fn.layout.parseOptions(this), options);
+                $.data(this, "layout", {options:opts, panels:{center:$(), north:$(), south:$(), east:$(), west:$()}});
                 init(this);
-                _38(this);
+                bindEvents(this);
             }
             setSize(this);
-            _3c(this);
+            setExpandPanel(this);
         });
     };
     $.fn.layout.methods = {resize:function (jq) {
         return jq.each(function () {
             setSize(this);
         });
-    }, panel:function (jq, _43) {
-        return $.data(jq[0], "layout").panels[_43];
-    }, collapse:function (jq, _44) {
+    }, panel:function (jq, region) {
+        return $.data(jq[0], "layout").panels[region];
+    }, collapse:function (jq, region) {
         return jq.each(function () {
-            _26(this, _44);
+            createExpandPanel(this, region);
         });
-    }, expand:function (jq, _45) {
+    }, expand:function (jq, region) {
         return jq.each(function () {
-            _31(this, _45);
+            expandRegion(this, region);
         });
-    }, add:function (jq, _46) {
+    }, add:function (jq, options) {
         return jq.each(function () {
-            createPanel(this, _46);
+            createPanel(this, options);
             setSize(this);
-            if ($(this).layout("panel", _46.region).panel("options").collapsed) {
-                _26(this, _46.region, 0);
+            if ($(this).layout("panel", options.region).panel("options").collapsed) {
+                createExpandPanel(this, options.region, 0);
             }
         });
-    }, remove:function (jq, _47) {
+    }, remove:function (jq, region) {
         return jq.each(function () {
-            _21(this, _47);
+            removeRegion(this, region);
             setSize(this);
         });
     }};
-    $.fn.layout.parseOptions = function (_48) {
-        return $.extend({}, $.parser.parseOptions(_48, [
+    $.fn.layout.parseOptions = function (target) {
+        return $.extend({}, $.parser.parseOptions(target, [
             {fit:"boolean"}
         ]));
     };
