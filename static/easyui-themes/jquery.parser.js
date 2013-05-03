@@ -14,7 +14,7 @@
         auto:true,
         onComplete:function (context) {
         },
-        plugins:["draggable", "droppable", "resizable", "pagination", "linkbutton", "menu", "menubutton", "splitbutton", "progressbar", "tree", "combobox", "combotree", "combogrid", "numberbox", "validatebox", "searchbox", "numberspinner", "timespinner", "calendar", "datebox", "datetimebox", "slider", "layout", "panel", "datagrid", "propertygrid", "treegrid", "tabs", "accordion", "window", "dialog"],
+        plugins:["resizable", "layout", "panel"],
         parse:function (context) {
             var aa = [];
             for (var i = 0; i < $.parser.plugins.length; i++) {
@@ -158,7 +158,7 @@
                 }
             }
         }
-        return {width:$(p).width(), height:$(p).height()};
+        return {width:$(p).width()};
     };
 })(jQuery);
 

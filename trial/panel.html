@@ -17,8 +17,14 @@
 <div data-options="region:'east',iconCls:'icon-reload',title:'East',split:true" style="width:100px;"></div>
 <div data-options="region:'west',title:'West',split:true" style="width:100px;"></div>
 <div data-options="region:'center',title:'center title'" style="padding:5px;background:#eee;">
-    <div class="easyui-panel" data-options="fit:true,title:'panel 1'">S</div>
-    <div class="easyui-panel" data-options="fit:true,title:'panel 2'">M</div>
+    <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 1'">
+        <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 12'">S</div>
+        <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 13'">S</div>
+    </div>
+    <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 2'">
+        <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 22'">S</div>
+        <div class="easyui-panel" data-options="doSize:false,fit:true,title:'panel 23'">S</div>
+    </div>
 </div>
 </body>
 </html>
