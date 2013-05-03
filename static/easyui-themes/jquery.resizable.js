@@ -11,11 +11,11 @@
  */
 (function ($) {
     var _1 = false;
-    $.fn.resizable = function (_2, _3) {
-        if (typeof _2 == "string") {
-            return $.fn.resizable.methods[_2](this, _3);
+    $.fn.resizable = function (options, _3) {
+        if (typeof options == "string") {
+            return $.fn.resizable.methods[options](this, _3);
         }
-        function _4(e) {
+        function resize(e) {
             var _5 = e.data;
             var _6 = $.data(_5.target, "resizable").options;
             if (_5.dir.indexOf("e") != -1) {
@@ -43,7 +43,7 @@
         }
 
         ;
-        function _9(e) {
+        function applySize(e) {
             var _a = e.data;
             var _b = _a.target;
             $(_b).css({left:_a.left, top:_a.top});
@@ -51,26 +51,26 @@
         }
 
         ;
-        function _c(e) {
+        function doDown(e) {
             _1 = true;
             $.data(e.data.target, "resizable").options.onStartResize.call(e.data.target, e);
             return false;
         }
 
         ;
-        function _d(e) {
-            _4(e);
+        function doMove(e) {
+            resize(e);
             if ($.data(e.data.target, "resizable").options.onResize.call(e.data.target, e) != false) {
-                _9(e);
+                applySize(e);
             }
             return false;
         }
 
         ;
-        function _e(e) {
+        function doUp(e) {
             _1 = false;
-            _4(e, true);
-            _9(e);
+            resize(e, true);
+            applySize(e);
             $.data(e.data.target, "resizable").options.onStopResize.call(e.data.target, e);
             $(document).unbind(".resizable");
             $("body").css("cursor", "");
@@ -79,16 +79,16 @@
 
         ;
         return this.each(function () {
-            var _f = null;
-            var _10 = $.data(this, "resizable");
-            if (_10) {
+            var opts = null;
+            var state = $.data(this, "resizable");
+            if (state) {
                 $(this).unbind(".resizable");
-                _f = $.extend(_10.options, _2 || {});
+                opts = $.extend(state.options, options || {});
             } else {
-                _f = $.extend({}, $.fn.resizable.defaults, $.fn.resizable.parseOptions(this), _2 || {});
-                $.data(this, "resizable", {options:_f});
+                opts = $.extend({}, $.fn.resizable.defaults, $.fn.resizable.parseOptions(this), options || {});
+                $.data(this, "resizable", {options:opts});
             }
-            if (_f.disabled == true) {
+            if (opts.disabled == true) {
                 return;
             }
             $(this).bind("mousemove.resizable", {target:this},
@@ -96,7 +96,7 @@
                         if (_1) {
                             return;
                         }
-                        var dir = _11(e);
+                        var dir = getDirection(e);
                         if (dir == "") {
                             $(e.data.target).css("cursor", "");
                         } else {
@@ -106,11 +106,11 @@
                     function (e) {
                         $(e.data.target).css("cursor", "");
                     }).bind("mousedown.resizable", {target:this}, function (e) {
-                        var dir = _11(e);
+                        var dir = getDirection(e);
                         if (dir == "") {
                             return;
                         }
-                        function _12(css) {
+                        function getCssValue(css) {
                             var val = parseInt($(e.data.target).css(css));
                             if (isNaN(val)) {
                                 return 0;
@@ -120,37 +120,37 @@
                         }
 
                         ;
-                        var _13 = {target:e.data.target, dir:dir, startLeft:_12("left"), startTop:_12("top"), left:_12("left"), top:_12("top"), startX:e.pageX, startY:e.pageY, startWidth:$(e.data.target).outerWidth(), startHeight:$(e.data.target).outerHeight(), width:$(e.data.target).outerWidth(), height:$(e.data.target).outerHeight(), deltaWidth:$(e.data.target).outerWidth() - $(e.data.target).width(), deltaHeight:$(e.data.target).outerHeight() - $(e.data.target).height()};
-                        $(document).bind("mousedown.resizable", _13, _c);
-                        $(document).bind("mousemove.resizable", _13, _d);
-                        $(document).bind("mouseup.resizable", _13, _e);
+                        var data = {target:e.data.target, dir:dir, startLeft:getCssValue("left"), startTop:getCssValue("top"), left:getCssValue("left"), top:getCssValue("top"), startX:e.pageX, startY:e.pageY, startWidth:$(e.data.target).outerWidth(), startHeight:$(e.data.target).outerHeight(), width:$(e.data.target).outerWidth(), height:$(e.data.target).outerHeight(), deltaWidth:$(e.data.target).outerWidth() - $(e.data.target).width(), deltaHeight:$(e.data.target).outerHeight() - $(e.data.target).height()};
+                        $(document).bind("mousedown.resizable", data, doDown);
+                        $(document).bind("mousemove.resizable", data, doMove);
+                        $(document).bind("mouseup.resizable", data, doUp);
                         $("body").css("cursor", dir + "-resize");
                     });
-            function _11(e) {
+            function getDirection(e) {
                 var tt = $(e.data.target);
                 var dir = "";
-                var _14 = tt.offset();
-                var _15 = tt.outerWidth();
-                var _16 = tt.outerHeight();
-                var _17 = _f.edge;
-                if (e.pageY > _14.top && e.pageY < _14.top + _17) {
+                var offset = tt.offset();
+                var width = tt.outerWidth();
+                var height = tt.outerHeight();
+                var edge = opts.edge;
+                if (e.pageY > offset.top && e.pageY < offset.top + edge) {
                     dir += "n";
                 } else {
-                    if (e.pageY < _14.top + _16 && e.pageY > _14.top + _16 - _17) {
+                    if (e.pageY < offset.top + height && e.pageY > offset.top + height - edge) {
                         dir += "s";
                     }
                 }
-                if (e.pageX > _14.left && e.pageX < _14.left + _17) {
+                if (e.pageX > offset.left && e.pageX < offset.left + edge) {
                     dir += "w";
                 } else {
-                    if (e.pageX < _14.left + _15 && e.pageX > _14.left + _15 - _17) {
+                    if (e.pageX < offset.left + width && e.pageX > offset.left + width - edge) {
                         dir += "e";
                     }
                 }
-                var _18 = _f.handles.split(",");
-                for (var i = 0; i < _18.length; i++) {
-                    var _19 = _18[i].replace(/(^\s*)|(\s*$)/g, "");
-                    if (_19 == "all" || _19 == dir) {
+                var handles = opts.handles.split(",");
+                for (var i = 0; i < handles.length; i++) {
+                    var handle = handles[i].replace(/(^\s*)|(\s*$)/g, "");
+                    if (handle == "all" || handle == dir) {
                         return dir;
                     }
                 }

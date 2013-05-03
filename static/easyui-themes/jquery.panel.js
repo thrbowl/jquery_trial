@@ -10,8 +10,8 @@
  *
  */
 (function ($) {
-    function _1(_2) {
-        _2.each(function () {
+    function removeNode(node) {
+        node.each(function () {
             $(this).remove();
             if ($.browser.msie) {
                 this.outerHTML = "";
@@ -20,169 +20,169 @@
     }
 
     ;
-    function _3(_4, _5) {
-        var _6 = $.data(_4, "panel").options;
-        var _7 = $.data(_4, "panel").panel;
-        var _8 = _7.children("div.panel-header");
-        var _9 = _7.children("div.panel-body");
-        if (_5) {
-            if (_5.width) {
-                _6.width = _5.width;
+    function setSize(target, param) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var pheader = panel.children("div.panel-header");
+        var pbody = panel.children("div.panel-body");
+        if (param) {
+            if (param.width) {
+                opts.width = param.width;
             }
-            if (_5.height) {
-                _6.height = _5.height;
+            if (param.height) {
+                opts.height = param.height;
             }
-            if (_5.left != null) {
-                _6.left = _5.left;
+            if (param.left != null) {
+                opts.left = param.left;
             }
-            if (_5.top != null) {
-                _6.top = _5.top;
+            if (param.top != null) {
+                opts.top = param.top;
             }
         }
-        _6.fit ? $.extend(_6, _7._fit()) : _7._fit(false);
-        _7.css({left:_6.left, top:_6.top});
-        if (!isNaN(_6.width)) {
-            _7._outerWidth(_6.width);
+        opts.fit ? $.extend(opts, panel._fit()) : panel._fit(false);
+        panel.css({left:opts.left, top:opts.top});
+        if (!isNaN(opts.width)) {
+            panel._outerWidth(opts.width);
         } else {
-            _7.width("auto");
+            panel.width("auto");
         }
-        _8.add(_9)._outerWidth(_7.width());
-        if (!isNaN(_6.height)) {
-            _7._outerHeight(_6.height);
-            _9._outerHeight(_7.height() - _8._outerHeight());
+        pheader.add(pbody)._outerWidth(panel.width());
+        if (!isNaN(opts.height)) {
+            panel._outerHeight(opts.height);
+            pbody._outerHeight(panel.height() - pheader._outerHeight());
         } else {
-            _9.height("auto");
+            pbody.height("auto");
         }
-        _7.css("height", "");
-        _6.onResize.apply(_4, [_6.width, _6.height]);
-        _7.find(">div.panel-body>div").triggerHandler("_resize");
+        panel.css("height", "");
+        opts.onResize.apply(target, [opts.width, opts.height]);
+        panel.find(">div.panel-body>div").triggerHandler("_resize");
     }
 
     ;
-    function _a(_b, _c) {
-        var _d = $.data(_b, "panel").options;
-        var _e = $.data(_b, "panel").panel;
-        if (_c) {
-            if (_c.left != null) {
-                _d.left = _c.left;
+    function movePanel(target, param) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        if (param) {
+            if (param.left != null) {
+                opts.left = param.left;
             }
-            if (_c.top != null) {
-                _d.top = _c.top;
+            if (param.top != null) {
+                opts.top = param.top;
             }
         }
-        _e.css({left:_d.left, top:_d.top});
-        _d.onMove.apply(_b, [_d.left, _d.top]);
+        panel.css({left:opts.left, top:opts.top});
+        opts.onMove.apply(target, [opts.left, opts.top]);
     }
 
     ;
-    function _f(_10) {
-        $(_10).addClass("panel-body");
-        var _11 = $("<div class=\"panel\"></div>").insertBefore(_10);
-        _11[0].appendChild(_10);
-        _11.bind("_resize", function () {
-            var _12 = $.data(_10, "panel").options;
+    function wrapPanel(target) {
+        $(target).addClass("panel-body");
+        var panel = $("<div class=\"panel\"></div>").insertBefore(target);
+        panel[0].appendChild(target);
+        panel.bind("_resize", function () {
+            var _12 = $.data(target, "panel").options;
             if (_12.fit == true) {
-                _3(_10);
+                setSize(target);
             }
             return false;
         });
-        return _11;
+        return panel;
     }
 
     ;
-    function _13(_14) {
-        var _15 = $.data(_14, "panel").options;
-        var _16 = $.data(_14, "panel").panel;
-        if (_15.tools && typeof _15.tools == "string") {
-            _16.find(">div.panel-header>div.panel-tool .panel-tool-a").appendTo(_15.tools);
+    function addHeader(target) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        if (opts.tools && typeof opts.tools == "string") {
+            panel.find(">div.panel-header>div.panel-tool .panel-tool-a").appendTo(opts.tools);
         }
-        _1(_16.children("div.panel-header"));
-        if (_15.title && !_15.noheader) {
-            var _17 = $("<div class=\"panel-header\"><div class=\"panel-title\">" + _15.title + "</div></div>").prependTo(_16);
-            if (_15.iconCls) {
-                _17.find(".panel-title").addClass("panel-with-icon");
-                $("<div class=\"panel-icon\"></div>").addClass(_15.iconCls).appendTo(_17);
+        removeNode(panel.children("div.panel-header"));
+        if (opts.title && !opts.noheader) {
+            var header = $("<div class=\"panel-header\"><div class=\"panel-title\">" + opts.title + "</div></div>").prependTo(panel);
+            if (opts.iconCls) {
+                header.find(".panel-title").addClass("panel-with-icon");
+                $("<div class=\"panel-icon\"></div>").addClass(opts.iconCls).appendTo(header);
             }
-            var _18 = $("<div class=\"panel-tool\"></div>").appendTo(_17);
-            _18.bind("click", function (e) {
+            var tool = $("<div class=\"panel-tool\"></div>").appendTo(header);
+            tool.bind("click", function (e) {
                 e.stopPropagation();
             });
-            if (_15.tools) {
-                if (typeof _15.tools == "string") {
-                    $(_15.tools).children().each(function () {
-                        $(this).addClass($(this).attr("iconCls")).addClass("panel-tool-a").appendTo(_18);
+            if (opts.tools) {
+                if (typeof opts.tools == "string") {
+                    $(opts.tools).children().each(function () {
+                        $(this).addClass($(this).attr("iconCls")).addClass("panel-tool-a").appendTo(tool);
                     });
                 } else {
-                    for (var i = 0; i < _15.tools.length; i++) {
-                        var t = $("<a href=\"javascript:void(0)\"></a>").addClass(_15.tools[i].iconCls).appendTo(_18);
-                        if (_15.tools[i].handler) {
-                            t.bind("click", eval(_15.tools[i].handler));
+                    for (var i = 0; i < opts.tools.length; i++) {
+                        var t = $("<a href=\"javascript:void(0)\"></a>").addClass(opts.tools[i].iconCls).appendTo(tool);
+                        if (opts.tools[i].handler) {
+                            t.bind("click", eval(opts.tools[i].handler));
                         }
                     }
                 }
             }
-            if (_15.collapsible) {
-                $("<a class=\"panel-tool-collapse\" href=\"javascript:void(0)\"></a>").appendTo(_18).bind("click", function () {
-                    if (_15.collapsed == true) {
-                        _3c(_14, true);
+            if (opts.collapsible) {
+                $("<a class=\"panel-tool-collapse\" href=\"javascript:void(0)\"></a>").appendTo(tool).bind("click", function () {
+                    if (opts.collapsed == true) {
+                        expandPanel(target, true);
                     } else {
-                        _2c(_14, true);
+                        collapsePanel(target, true);
                     }
                     return false;
                 });
             }
-            if (_15.minimizable) {
-                $("<a class=\"panel-tool-min\" href=\"javascript:void(0)\"></a>").appendTo(_18).bind("click", function () {
-                    _47(_14);
+            if (opts.minimizable) {
+                $("<a class=\"panel-tool-min\" href=\"javascript:void(0)\"></a>").appendTo(tool).bind("click", function () {
+                    minimizePanel(target);
                     return false;
                 });
             }
-            if (_15.maximizable) {
-                $("<a class=\"panel-tool-max\" href=\"javascript:void(0)\"></a>").appendTo(_18).bind("click", function () {
-                    if (_15.maximized == true) {
-                        _4b(_14);
+            if (opts.maximizable) {
+                $("<a class=\"panel-tool-max\" href=\"javascript:void(0)\"></a>").appendTo(tool).bind("click", function () {
+                    if (opts.maximized == true) {
+                        restorePanel(target);
                     } else {
-                        _2b(_14);
+                        maximizePanel(target);
                     }
                     return false;
                 });
             }
-            if (_15.closable) {
-                $("<a class=\"panel-tool-close\" href=\"javascript:void(0)\"></a>").appendTo(_18).bind("click", function () {
-                    _19(_14);
+            if (opts.closable) {
+                $("<a class=\"panel-tool-close\" href=\"javascript:void(0)\"></a>").appendTo(tool).bind("click", function () {
+                    closePanel(target);
                     return false;
                 });
             }
-            _16.children("div.panel-body").removeClass("panel-body-noheader");
+            panel.children("div.panel-body").removeClass("panel-body-noheader");
         } else {
-            _16.children("div.panel-body").addClass("panel-body-noheader");
+            panel.children("div.panel-body").addClass("panel-body-noheader");
         }
     }
 
     ;
-    function _1a(_1b) {
-        var _1c = $.data(_1b, "panel");
-        var _1d = _1c.options;
-        if (_1d.content) {
-            _1e(_1b);
-            _1f(_1d.content);
+    function loadData(target) {
+        var state = $.data(target, "panel");
+        var opts = state.options;
+        if (opts.content) {
+            _1e(target);
+            _1f(opts.content);
         }
-        if (_1d.href && (!_1c.isLoaded || !_1d.cache)) {
-            _1c.isLoaded = false;
-            _1e(_1b);
-            if (_1d.loadingMessage) {
-                $(_1b).html($("<div class=\"panel-loading\"></div>").html(_1d.loadingMessage));
+        if (opts.href && (!state.isLoaded || !opts.cache)) {
+            state.isLoaded = false;
+            _1e(target);
+            if (opts.loadingMessage) {
+                $(target).html($("<div class=\"panel-loading\"></div>").html(opts.loadingMessage));
             }
-            $.ajax({url:_1d.href, cache:false, dataType:"html", success:function (_20) {
-                _1f(_1d.extractor.call(_1b, _20));
-                _1d.onLoad.apply(_1b, arguments);
-                _1c.isLoaded = true;
+            $.ajax({url:opts.href, cache:false, dataType:"html", success:function (_20) {
+                _1f(opts.extractor.call(target, _20));
+                opts.onLoad.apply(target, arguments);
+                state.isLoaded = true;
             }});
         }
         function _1f(_21) {
-            $(_1b).html(_21);
+            $(target).html(_21);
             if ($.parser) {
-                $.parser.parse($(_1b));
+                $.parser.parse($(target));
             }
         }
 
@@ -211,199 +211,199 @@
     }
 
     ;
-    function _25(_26, _27) {
-        var _28 = $.data(_26, "panel").options;
-        var _29 = $.data(_26, "panel").panel;
-        if (_27 != true) {
-            if (_28.onBeforeOpen.call(_26) == false) {
+    function openPanel(target, forceOpen) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        if (forceOpen != true) {
+            if (opts.onBeforeOpen.call(target) == false) {
                 return;
             }
         }
-        _29.show();
-        _28.closed = false;
-        _28.minimized = false;
-        var _2a = _29.children("div.panel-header").find("a.panel-tool-restore");
-        if (_2a.length) {
-            _28.maximized = true;
+        panel.show();
+        opts.closed = false;
+        opts.minimized = false;
+        var tool = panel.children("div.panel-header").find("a.panel-tool-restore");
+        if (tool.length) {
+            opts.maximized = true;
         }
-        _28.onOpen.call(_26);
-        if (_28.maximized == true) {
-            _28.maximized = false;
-            _2b(_26);
+        opts.onOpen.call(target);
+        if (opts.maximized == true) {
+            opts.maximized = false;
+            maximizePanel(target);
         }
-        if (_28.collapsed == true) {
-            _28.collapsed = false;
-            _2c(_26);
+        if (opts.collapsed == true) {
+            opts.collapsed = false;
+            collapsePanel(target);_
         }
-        if (!_28.collapsed) {
-            _1a(_26);
-            _23(_26);
+        if (!opts.collapsed) {
+            loadData(target);
+            _23(target);
         }
     }
 
     ;
-    function _19(_2d, _2e) {
-        var _2f = $.data(_2d, "panel").options;
-        var _30 = $.data(_2d, "panel").panel;
-        if (_2e != true) {
-            if (_2f.onBeforeClose.call(_2d) == false) {
+    function closePanel(target, forceClose) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        if (forceClose != true) {
+            if (opts.onBeforeClose.call(target) == false) {
                 return;
             }
         }
-        _30._fit(false);
-        _30.hide();
-        _2f.closed = true;
-        _2f.onClose.call(_2d);
+        panel._fit(false);
+        panel.hide();
+        opts.closed = true;
+        opts.onClose.call(target);
     }
 
     ;
-    function _31(_32, _33) {
-        var _34 = $.data(_32, "panel").options;
-        var _35 = $.data(_32, "panel").panel;
-        if (_33 != true) {
-            if (_34.onBeforeDestroy.call(_32) == false) {
+    function destroyPanel(target, forceDestroy) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        if (forceDestroy != true) {
+            if (opts.onBeforeDestroy.call(target) == false) {
                 return;
             }
         }
-        _1e(_32);
-        _1(_35);
-        _34.onDestroy.call(_32);
+        _1e(target);
+        removeNode(panel);
+        opts.onDestroy.call(target);
     }
 
     ;
-    function _2c(_36, _37) {
-        var _38 = $.data(_36, "panel").options;
-        var _39 = $.data(_36, "panel").panel;
-        var _3a = _39.children("div.panel-body");
-        var _3b = _39.children("div.panel-header").find("a.panel-tool-collapse");
-        if (_38.collapsed == true) {
+    function collapsePanel(target, animate) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var pbody = panel.children("div.panel-body");
+        var tool = panel.children("div.panel-header").find("a.panel-tool-collapse");
+        if (opts.collapsed == true) {
             return;
         }
-        _3a.stop(true, true);
-        if (_38.onBeforeCollapse.call(_36) == false) {
+        pbody.stop(true, true);
+        if (opts.onBeforeCollapse.call(target) == false) {
             return;
         }
-        _3b.addClass("panel-tool-expand");
-        if (_37 == true) {
-            _3a.slideUp("normal", function () {
-                _38.collapsed = true;
-                _38.onCollapse.call(_36);
+        tool.addClass("panel-tool-expand");
+        if (animate == true) {
+            pbody.slideUp("normal", function () {
+                opts.collapsed = true;
+                opts.onCollapse.call(target);
             });
         } else {
-            _3a.hide();
-            _38.collapsed = true;
-            _38.onCollapse.call(_36);
+            pbody.hide();
+            opts.collapsed = true;
+            opts.onCollapse.call(target);
         }
     }
 
     ;
-    function _3c(_3d, _3e) {
-        var _3f = $.data(_3d, "panel").options;
-        var _40 = $.data(_3d, "panel").panel;
-        var _41 = _40.children("div.panel-body");
-        var _42 = _40.children("div.panel-header").find("a.panel-tool-collapse");
-        if (_3f.collapsed == false) {
+    function expandPanel(target, animate) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var pbody = panel.children("div.panel-body");
+        var tool = panel.children("div.panel-header").find("a.panel-tool-collapse");
+        if (opts.collapsed == false) {
             return;
         }
-        _41.stop(true, true);
-        if (_3f.onBeforeExpand.call(_3d) == false) {
+        pbody.stop(true, true);
+        if (opts.onBeforeExpand.call(target) == false) {
             return;
         }
-        _42.removeClass("panel-tool-expand");
-        if (_3e == true) {
-            _41.slideDown("normal", function () {
-                _3f.collapsed = false;
-                _3f.onExpand.call(_3d);
-                _1a(_3d);
-                _23(_3d);
+        tool.removeClass("panel-tool-expand");
+        if (animate == true) {
+            pbody.slideDown("normal", function () {
+                opts.collapsed = false;
+                opts.onExpand.call(target);
+                loadData(target);
+                _23(target);
             });
         } else {
-            _41.show();
-            _3f.collapsed = false;
-            _3f.onExpand.call(_3d);
-            _1a(_3d);
-            _23(_3d);
+            pbody.show();
+            opts.collapsed = false;
+            opts.onExpand.call(target);
+            loadData(target);
+            _23(target);
         }
     }
 
     ;
-    function _2b(_43) {
-        var _44 = $.data(_43, "panel").options;
-        var _45 = $.data(_43, "panel").panel;
-        var _46 = _45.children("div.panel-header").find("a.panel-tool-max");
-        if (_44.maximized == true) {
+    function maximizePanel(target) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var tool = panel.children("div.panel-header").find("a.panel-tool-max");
+        if (opts.maximized == true) {
             return;
         }
-        _46.addClass("panel-tool-restore");
-        if (!$.data(_43, "panel").original) {
-            $.data(_43, "panel").original = {width:_44.width, height:_44.height, left:_44.left, top:_44.top, fit:_44.fit};
+        tool.addClass("panel-tool-restore");
+        if (!$.data(target, "panel").original) {
+            $.data(target, "panel").original = {width:opts.width, height:opts.height, left:opts.left, top:opts.top, fit:opts.fit};
         }
-        _44.left = 0;
-        _44.top = 0;
-        _44.fit = true;
-        _3(_43);
-        _44.minimized = false;
-        _44.maximized = true;
-        _44.onMaximize.call(_43);
+        opts.left = 0;
+        opts.top = 0;
+        opts.fit = true;
+        setSize(target);
+        opts.minimized = false;
+        opts.maximized = true;
+        opts.onMaximize.call(target);
     }
 
     ;
-    function _47(_48) {
-        var _49 = $.data(_48, "panel").options;
-        var _4a = $.data(_48, "panel").panel;
-        _4a._fit(false);
-        _4a.hide();
-        _49.minimized = true;
-        _49.maximized = false;
-        _49.onMinimize.call(_48);
+    function minimizePanel(target) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        panel._fit(false);
+        panel.hide();
+        opts.minimized = true;
+        opts.maximized = false;
+        opts.onMinimize.call(target);
     }
 
     ;
-    function _4b(_4c) {
-        var _4d = $.data(_4c, "panel").options;
-        var _4e = $.data(_4c, "panel").panel;
-        var _4f = _4e.children("div.panel-header").find("a.panel-tool-max");
-        if (_4d.maximized == false) {
+    function restorePanel(target) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var tool = panel.children("div.panel-header").find("a.panel-tool-max");
+        if (opts.maximized == false) {
             return;
         }
-        _4e.show();
-        _4f.removeClass("panel-tool-restore");
-        $.extend(_4d, $.data(_4c, "panel").original);
-        _3(_4c);
-        _4d.minimized = false;
-        _4d.maximized = false;
-        $.data(_4c, "panel").original = null;
-        _4d.onRestore.call(_4c);
+        panel.show();
+        tool.removeClass("panel-tool-restore");
+        $.extend(opts, $.data(target, "panel").original);
+        setSize(target);
+        opts.minimized = false;
+        opts.maximized = false;
+        $.data(target, "panel").original = null;
+        opts.onRestore.call(target);
     }
 
     ;
-    function _50(_51) {
-        var _52 = $.data(_51, "panel").options;
-        var _53 = $.data(_51, "panel").panel;
-        var _54 = $(_51).panel("header");
-        var _55 = $(_51).panel("body");
-        _53.css(_52.style);
-        _53.addClass(_52.cls);
-        if (_52.border) {
-            _54.removeClass("panel-header-noborder");
-            _55.removeClass("panel-body-noborder");
+    function setBorder(target) {
+        var opts = $.data(target, "panel").options;
+        var panel = $.data(target, "panel").panel;
+        var pheader = $(target).panel("header");
+        var pbody = $(target).panel("body");
+        panel.css(opts.style);
+        panel.addClass(opts.cls);
+        if (opts.border) {
+            pheader.removeClass("panel-header-noborder");
+            pbody.removeClass("panel-body-noborder");
         } else {
-            _54.addClass("panel-header-noborder");
-            _55.addClass("panel-body-noborder");
+            pheader.addClass("panel-header-noborder");
+            pbody.addClass("panel-body-noborder");
         }
-        _54.addClass(_52.headerCls);
-        _55.addClass(_52.bodyCls);
-        if (_52.id) {
-            $(_51).attr("id", _52.id);
+        pheader.addClass(opts.headerCls);
+        pbody.addClass(opts.bodyCls);
+        if (opts.id) {
+            $(target).attr("id", opts.id);
         } else {
-            $(_51).attr("id", "");
+            $(target).attr("id", "");
         }
     }
 
     ;
-    function _56(_57, _58) {
-        $.data(_57, "panel").options.title = _58;
-        $(_57).panel("header").find("div.panel-title").html(_58);
+    function setTitle(target, title) {
+        $.data(target, "panel").options.title = title;
+        $(target).panel("header").find("div.panel-title").html(title);
     }
 
     ;
@@ -428,31 +428,31 @@
             TO = false;
         }, 200);
     });
-    $.fn.panel = function (_5b, _5c) {
-        if (typeof _5b == "string") {
-            return $.fn.panel.methods[_5b](this, _5c);
+    $.fn.panel = function (options, param) {
+        if (typeof options == "string") {
+            return $.fn.panel.methods[options](this, param);
         }
-        _5b = _5b || {};
+        options = options || {};
         return this.each(function () {
             var _5d = $.data(this, "panel");
             var _5e;
             if (_5d) {
-                _5e = $.extend(_5d.options, _5b);
+                _5e = $.extend(_5d.options, options);
             } else {
-                _5e = $.extend({}, $.fn.panel.defaults, $.fn.panel.parseOptions(this), _5b);
+                _5e = $.extend({}, $.fn.panel.defaults, $.fn.panel.parseOptions(this), options);
                 $(this).attr("title", "");
-                _5d = $.data(this, "panel", {options:_5e, panel:_f(this), isLoaded:false});
+                _5d = $.data(this, "panel", {options:_5e, panel:wrapPanel(this), isLoaded:false});
             }
-            _13(this);
-            _50(this);
+            addHeader(this);
+            setBorder(this);
             if (_5e.doSize == true) {
                 _5d.panel.css("display", "block");
-                _3(this);
+                setSize(this);
             }
             if (_5e.closed == true || _5e.minimized == true) {
                 _5d.panel.hide();
             } else {
-                _25(this);
+                openPanel(this);
             }
         });
     };
@@ -466,19 +466,19 @@
         return $.data(jq[0], "panel").panel.find(">div.panel-body");
     }, setTitle:function (jq, _5f) {
         return jq.each(function () {
-            _56(this, _5f);
+            setTitle(this, _5f);
         });
     }, open:function (jq, _60) {
         return jq.each(function () {
-            _25(this, _60);
+            openPanel(this, _60);
         });
     }, close:function (jq, _61) {
         return jq.each(function () {
-            _19(this, _61);
+            closePanel(this, _61);
         });
     }, destroy:function (jq, _62) {
         return jq.each(function () {
-            _31(this, _62);
+            destroyPanel(this, _62);
         });
     }, refresh:function (jq, _63) {
         return jq.each(function () {
@@ -486,35 +486,35 @@
             if (_63) {
                 $.data(this, "panel").options.href = _63;
             }
-            _1a(this);
+            loadData(this);
         });
     }, resize:function (jq, _64) {
         return jq.each(function () {
-            _3(this, _64);
+            setSize(this, _64);
         });
     }, move:function (jq, _65) {
         return jq.each(function () {
-            _a(this, _65);
+            movePanel(this, _65);
         });
     }, maximize:function (jq) {
         return jq.each(function () {
-            _2b(this);
+            maximizePanel(this);
         });
     }, minimize:function (jq) {
         return jq.each(function () {
-            _47(this);
+            minimizePanel(this);
         });
     }, restore:function (jq) {
         return jq.each(function () {
-            _4b(this);
+            restorePanel(this);
         });
     }, collapse:function (jq, _66) {
         return jq.each(function () {
-            _2c(this, _66);
+            collapsePanel(this, _66);
         });
     }, expand:function (jq, _67) {
         return jq.each(function () {
-            _3c(this, _67);
+            expandPanel(this, _67);
         });
     }};
     $.fn.panel.parseOptions = function (_68) {
