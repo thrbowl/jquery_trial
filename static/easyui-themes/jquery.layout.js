@@ -256,19 +256,19 @@
         if (!panels[expandPanel]) {
             panels[expandPanel] = _expandPanel(region);
             panels[expandPanel].panel("panel").click(function () {
-                var _2d = _2e();
-                p.panel("expand", false).panel("open").panel("resize", _2d.collapse);
-                p.panel("panel").animate(_2d.expand);
+                var data = _2e();
+                p.panel("expand", false).panel("open").panel("resize", data.collapse);
+                p.panel("panel").animate(data.expand);
                 return false;
             });
         }
-        var _2f = _2e();
+        var data = _2e();
         if (!isVisible(panels[expandPanel])) {
-            panels.center.panel("resize", _2f.resizeC);
+            panels.center.panel("resize", data.resizeC);
         }
-        p.panel("panel").animate(_2f.collapse, duration, function () {
+        p.panel("panel").animate(data.collapse, duration, function () {
             p.panel("collapse", false).panel("close");
-            panels[expandPanel].panel("open").panel("resize", _2f.expandP);
+            panels[expandPanel].panel("open").panel("resize", data.expandP);
         });
         function _expandPanel(dir) {
             var icon;
@@ -359,7 +359,7 @@
     ;
     function expandRegion(container, region) {
         var panels = $.data(container, "layout").panels;
-        var _35 = _36();
+        var data = _36();
         var p = panels[region];
         if (p.panel("options").onBeforeExpand.call(p) == false) {
             return;
@@ -367,8 +367,8 @@
         var expandPanel = "expand" + region.substring(0, 1).toUpperCase() + region.substring(1);
         panels[expandPanel].panel("close");
         p.panel("panel").stop(true, true);
-        p.panel("expand", false).panel("open").panel("resize", _35.collapse);
-        p.panel("panel").animate(_35.expand, function () {
+        p.panel("expand", false).panel("open").panel("resize", data.collapse);
+        p.panel("panel").animate(data.expand, function () {
             setSize(container);
         });
         function _36() {

@@ -233,7 +233,7 @@
         }
         if (opts.collapsed == true) {
             opts.collapsed = false;
-            collapsePanel(target);_
+            collapsePanel(target);
         }
         if (!opts.collapsed) {
             loadData(target);
