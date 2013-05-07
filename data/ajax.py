@@ -17,3 +17,8 @@ def v2():
 def v3():
     time.sleep(2)
     return ''
+
+
+@app.route('/v4/')
+def v3():
+    return 'false'

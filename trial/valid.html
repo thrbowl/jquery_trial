@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Valid</title>
+    <style type="text/css">
+        label {
+            width: 100px;
+        }
+
+        input[type="text"] {
+            width: 200px;
+        }
+
+        input[type="submit|buttom"] {
+            width: 50px;
+        }
+    </style>
+    <script type="text/javascript" src="/static/js/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.validate.js"></script>
+    <script type="text/javascript">
+        var $form;
+
+        function validate() {
+            $form.ajaxSubmit({
+                beforeSubmit:function () {
+                    $form.validate({
+                        onkeyup:false,
+                        invalidHandler:function (event, validator) {
+                            alert("invalidHandler");
+                        },
+                        submitHandler:function (form) {
+                            alert("submitHandler");
+                        }
+                    });
+                    return $form.valid();
+                },
+                success:function () {
+
+                }
+            })
+        }
+
+        $(function(){
+            $form = $("#test_form");
+        })
+    </script>
+</head>
+<body>
+<form id="test_form" action="" method="POST">
+    <p><label for="_a">_A</label>: <input type="text" id="_a" name="_a" class="required" maxlength="20"
+                                          remote="http://192.168.1.102:8080/ajax/v4/"></p>
+
+    <p><label for="_b">_B</label>: <input type="text" id="_b" name="_b"></p>
+
+    <p><input type="button" value="Submit" onclick="validate()"></p>
+</form>
+</body>
+</html>
