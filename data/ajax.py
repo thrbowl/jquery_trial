@@ -1,24 +1,26 @@
 import time
-from bottle import route, Bottle, jinja2_template
+from bottle import route, Bottle, jinja2_template, response, get, post, request
 
 app = Bottle()
 
 @app.route('/v1/')
 def v1():
-    return ''
+    time.sleep(30)
+    return 'hello v1'
 
 
 @app.route('/v2/')
 def v2():
-    return ''
+    return 'hello v2'
 
 
-@app.route('/v3/')
+@app.get('/v3/')
 def v3():
-    time.sleep(2)
-    return ''
+    print dict(request.query)
+    return 'hello v3'
 
 
-@app.route('/v4/')
+@app.post('/v3/')
 def v3():
-    return 'false'
+    print request.POST.items()
+    return 'hello v3'
