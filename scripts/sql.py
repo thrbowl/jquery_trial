@@ -2,7 +2,7 @@
 import os
 import shutil
 import sqlite3
-
+#for test sqlite3
 #create table run_test(
 #    exe_case_id integer not null UNIQUE,
 #    retcode integer not null,
